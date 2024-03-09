@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-//ÓÃµÝ¹éµÄ·½·¨ÊµÏÖ×Ö·û´®ÄæÐò
+//ç”¨é€’å½’çš„æ–¹æ³•å®žçŽ°å­—ç¬¦ä¸²é€†åº
 //char arr[20];
 //void Reverse(int left,int right)
 //{
@@ -25,7 +25,7 @@
 //	return 0;
 //}
 
-//´óÐ¡Ð´×ª»»
+//å¤§å°å†™è½¬æ¢
 //int main() 
 //{
 //    char ch;
@@ -37,7 +37,7 @@
 //    return 0;
 //}
 
-//Êý×Ö²ð·Ö¼ÆËãÃ¿Ò»Î»Ö®ºÍ
+//æ•°å­—æ‹†åˆ†è®¡ç®—æ¯ä¸€ä½ä¹‹å’Œ
 //int dight(int num)
 //{
 //	if (num > 9)
@@ -57,7 +57,7 @@
 //	return 0;
 //}
 
-//nµÄk´Î·½
+//nçš„kæ¬¡æ–¹
 double power(int n, int k)
 {
 	if (k>0)
