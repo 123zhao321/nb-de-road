@@ -3,6 +3,7 @@
 
 char mine[ROWS][COLS] = { 0 };  // 地雷
 char demine[ROWS][COLS] = { 0 };// 排雷
+int combo_mine[ROWS][COLS] = { 0 }; //未探测
 
 // 菜单
 void menu()
@@ -57,11 +58,11 @@ void laying_mine()
 	{
 		int i = rand() % row + 1;
 		int j = rand() % col + 1;
-		if (((i > 0) && (i < row)) && ((j > 0) && (j < row)))
+		if (((i > 0) && (i <= row)) && ((j > 0) && (j <= row)))
 		{
-			if (mine[i + 1][j + 1] == '0')
+			if (mine[i][j] == '0')
 			{
-				mine[i + 1][j + 1] = '1';
+				mine[i][j] = '1';
 				count--;
 			}
 		}
@@ -97,14 +98,14 @@ void game()
 	laying_mine();
 
 	// 检测数组----检测环节
-	printf("-----地雷数组-----\n");
-	draw(mine);
+//	printf("-----地雷数组-----\n");
+//	draw(mine);
 	printf("-----排雷数组-----\n");
 	draw(demine);
 
 	// 开始游戏
-	int clearing_count = count_mines;
-	while (clearing_count)
+	int sign_count = 0; // 排雷棋盘‘*’的个数
+	while (sign_count - count_mines)
 	{
 		int i = 0;
 		int j = 0;
@@ -130,6 +131,7 @@ void game()
 					// 开始爆炸
 					combo(i, j);
 				}
+				system("cls");
 				draw(demine);
 			}
 		}
@@ -138,129 +140,132 @@ void game()
 			printf("坐标非法，请重新输入:>");
 			scanf("%d %d", &i, &j);
 		}
+		sign_count = 0;
+		int m = 0;
+		int n = 0;
+		for (m = 1; m <= row; m++)
+		{
+			for (n = 1; n <= col; n++)
+			{
+				if (demine[m][n] == '*')
+				{
+					sign_count++;
+				}
+			}
+		}
+	}
+	if (sign_count == count_mines)
+	{
+		printf("\n恭喜你！排雷成功！\n");
+		draw(mine);
 	}
 }
 
 // 爆炸探测
 void combo(int x, int y)
 {
-	if (demine[x][y] != '0')
-	{
-		return;
-	}
-	// 先探测四个角
-	diagon(x, y);
-
-	dete(x - 1, y);
-	dete(x , y - 1);
-	dete(x + 1, y );
-	dete(x , y + 1);
+	// 爆炸标记
+	combo_mine[x][y]++;
+	// 探测周围
+	dete(x - 1, y - 1); // 左上
+	dete(x - 1, y + 1); // 右上
+	dete(x + 1, y - 1); // 左下
+	dete(x + 1, y + 1); // 右下
+	dete(x - 1, y    ); // 上
+	dete(x    , y - 1); // 左
+	dete(x + 1, y    ); // 右
+	dete(x    , y + 1); // 下
 
 	if (demine[x - 1][y] == '0') // 向上检测
 	{
-		combo(x - 1, y);
+		up_combo(x - 1, y);
 	}
 	if (demine[x + 1][y] == '0') // 向下检测
 	{
-		combo(x + 1, y);
+		down_combo(x + 1, y);
 	}
 	if (demine[x][y - 1] == '0') // 向左检测
 	{
-		combo(x, y - 1);
+		left_combo(x, y - 1);
 	}
 	if (demine[x][y + 1] == '0') // 向右检测
 	{
-		combo(x, y + 1);
+		right_combo(x, y + 1);
 	}
 }
 
-// 四个角
-void diagon(int x, int y)
-{
-	// 探测边缘
-	if ((x == 0 || y == 0) || (x == row+1 || y == col+1))
-	{
-		return;
-	}
-	dete(x - 1, y - 1);
-	dete(x - 1, y + 1);
-	dete(x + 1, y - 1);
-	dete(x + 1, y + 1);
-}
 
 // 上方
-//void up(int x, int y)
-//{
-//	diagon(x,y);
-//
-//	dete(x, y);
-//	
-//	dete(x - 1, y );// 上
-//	dete(x, y - 1 );// 左
-//	dete(x, y + 1 );// 右
-////	dete(x + 1, y );// 下
-//	if (demine[x][y] == '0')
-//	{
-//		combo(x - 1, y);
-//		combo(x, y - 1);
-//		combo(x, y + 1);
-//	}
-//}
+void up_combo(int x, int y)
+{
+	// 爆炸标记
+	combo_mine[x][y]++;
 
-//// 下方
-//void down(int x, int y)
-//{
-//	diagon(x, y);
-//
-//	dete(x, y);
-//
-////	dete(x - 1, y);// 上
-//	dete(x, y - 1);// 左
-//	dete(x, y + 1);// 右
-//	dete(x + 1, y);// 下
-//
-//	if (demine[x][y] == '0')
-//	{
-//		combo(x+1,y);
-//		combo(x,y-1);
-//		combo(x,y+1);
-//	}
-//}
-//
-//// 左边
-//void left(int x, int y)
-//{
-//	diagon(x, y);
-//
-//	dete(x, y);
-//	dete(x - 1, y);// 上
-////	dete(x, y - 1);// 左
-//	dete(x, y + 1);// 右
-//	dete(x + 1, y);// 下
-//
-//	if (demine[x][y] == '0')
-//	{
-//		combo(x,y-1);
-//		combo(x-1,y);
-//		combo(x+1,y);
-//	}
-//}
-//
-//// 右边
-//void right(int x, int y)
-//{
-//	diagon(x, y);
-//
-//	dete(x, y);
-//	dete(x - 1, y);// 上
-//	dete(x, y - 1);// 左
-////	dete(x, y + 1);// 右
-//	dete(x + 1, y);// 下
-//
-//	if (demine[x][y] == '0')
-//	{
-//		combo(x,y+1);
-//		combo(x-1,y);
-//		combo(x+1,y);
-//	}
-//}
+	dete(x - 1, y - 1); // 左上
+	dete(x - 1, y + 1); // 右上
+//	dete(x + 1, y - 1); // 左下
+//	dete(x + 1, y + 1); // 右下
+	dete(x - 1, y); // 上
+//	dete(x, y - 1); // 左
+//	dete(x + 1, y); // 右
+//	dete(x, y + 1); // 下
+
+	if ((demine[x][y] == '0') && (demine[x - 1][y] == '0'))
+	{
+		up_combo(x - 1, y);
+	}
+}
+
+// 左边
+void left_combo(int x, int y)
+{
+	dete(x - 1, y - 1); // 左上
+//	dete(x - 1, y + 1); // 右上
+	dete(x + 1, y - 1); // 左下
+//	dete(x + 1, y + 1); // 右下
+//	dete(x - 1, y); // 上
+	dete(x, y - 1); // 左
+//	dete(x + 1, y); // 右
+//	dete(x, y + 1); // 下
+
+	if ((demine[x][y] == '0') && (demine[x][y - 1] == '0'))
+	{
+		left_combo(x, y - 1);
+	}
+}
+
+// 右边
+void right_combo(int x, int y)
+{
+//	dete(x - 1, y - 1); // 左上
+	dete(x - 1, y + 1); // 右上
+//	dete(x + 1, y - 1); // 左下
+	dete(x + 1, y + 1); // 右下
+//	dete(x - 1, y); // 上
+//	dete(x, y - 1); // 左
+	dete(x, y + 1); // 右
+//	dete(x, y + 1); // 下
+
+	if ((demine[x][y] == '0') && (demine[x][y + 1] == '0'))
+	{
+		right_combo(x, y + 1);
+	}
+}
+
+// 下方
+void down_combo(int x, int y)
+{
+//	dete(x - 1, y - 1); // 左上
+//	dete(x - 1, y + 1); // 右上
+	dete(x + 1, y - 1); // 左下
+	dete(x + 1, y + 1); // 右下
+//	dete(x - 1, y); // 上
+//	dete(x, y - 1); // 左
+//	dete(x + 1, y); // 右
+	dete(x + 1, y); // 下
+
+	if ((demine[x][y] == '0') && (demine[x + 1][y] == '0'))
+	{
+		left_combo(x + 1, y);
+	}
+}
